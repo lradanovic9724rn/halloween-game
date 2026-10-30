@@ -117,7 +117,9 @@ export function decide(payload, env) {
   if (!content) return null;
   const path = text(input, 'file_path') || text(input, 'notebook_path');
   const absolute = resolve(env.projectDir, path);
-  const inside = relative(env.projectDir, absolute);
+  // Normalize to forward slashes so the user-facing message is identical on
+  // Windows and POSIX; `path.relative` returns backslashes on Windows.
+  const inside = relative(env.projectDir, absolute).replaceAll('\\', '/');
   if (inside.startsWith('..') || isAbsolute(inside)) return null;
   if (env.isIgnored(absolute)) return null;
 

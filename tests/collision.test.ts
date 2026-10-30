@@ -117,4 +117,16 @@ describe('hasCollision', () => {
     };
     expect(hasCollision(dino, [smallCactus(DINO_X + 20)])).toBe(false);
   });
+
+  // Dino sprite x-range at DINO_X=50 is [50, 94]; its hitbox excludes the tail
+  // and head overhang, so hitbox x-range is [62, 84]. A small cactus at x=85
+  // (sprite [85, 102], hitbox [87, 100]) overlaps the dino sprite but not its
+  // hitbox — the head-overhang region. Spec: collision is AABB on hitboxes.
+  it('is false when sprite rects overlap but hitboxes are disjoint', () => {
+    const dino = groundDino();
+    const cactus = smallCactus(85);
+    expect(intersects(dino, cactus)).toBe(true);
+    expect(intersects(dino.hitbox, cactus.hitbox)).toBe(false);
+    expect(hasCollision(dino, [cactus])).toBe(false);
+  });
 });

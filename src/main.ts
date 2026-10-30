@@ -88,21 +88,23 @@ const game = createGame({
 });
 
 // 4. Canvas, renderer and keyboard. Listeners live on window, so the canvas
-// needs no focus; each intent is queued for the next step.
+// needs no focus; each intent is queued for the next step. The adapter is
+// attached once (architecture 2.2 Input model): restart resets the reducer's
+// held-key set instead of registering a second set of DOM listeners.
 const canvas = findCanvas();
 fitCanvas(canvas);
 const renderer = createRenderer(canvas);
 // Cosmetic features plug in from outside the game loop (architecture 2.2).
 installPuddle({ game, renderer });
-// Each run gets a fresh keyboard, so a key still held from the crash does not
-// count as already pressed in the next run.
-function bindKeyboard(): void {
-  attachKeyboard(window, createKeyboard(), (intent) => {
-    game.dispatch(intent);
-  });
-}
-bindKeyboard();
-game.on('restart', bindKeyboard);
+const keyboard = createKeyboard();
+attachKeyboard(window, keyboard, (intent) => {
+  game.dispatch(intent);
+});
+// A key still held from the crash should not count as already pressed in the
+// next run, so clear the reducer's held-key set when a run restarts.
+game.on('restart', () => {
+  keyboard.reset();
+});
 
 // 5. Read-only hook for end-to-end tests. Frozen so page code cannot replace it.
 window.__dino = Object.freeze({

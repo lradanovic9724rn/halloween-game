@@ -155,6 +155,8 @@ function freshRun(seed: number, previous: RunState): RunState {
   return {
     ...previous,
     phase: 'running',
+    tick: 0,
+    speed: START_SPEED,
     seed,
     scrollX: 0,
     distance: 0,

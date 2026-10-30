@@ -795,6 +795,11 @@ describe('2.7 restarting', () => {
 
     const s = game.state();
     expect(s.phase).toBe('running');
+    // Spec: the step that applies a restart leaves tick === 0 and moves nothing;
+    // speed is reset to START_SPEED, so the next running step increments to
+    // tick 1 at START_SPEED, not death-tick+1 at the ramped speed.
+    expect(s.tick).toBe(0);
+    expect(s.speed).toBe(START_SPEED);
     expect(s.seed).toBe(9);
     expect(s.score).toBe(0);
     expect(s.obstacles).toEqual([]);
